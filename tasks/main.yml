@@ -1,6 +1,9 @@
 ---
-- name: ensure dependencies are installed
-  yum: name=unzip state=present
+- include: dependencies-RedHat.yml
+  when: ansible_os_family != 'RedHat'
+
+- include: dependencies-Debian.yml
+  when: ansible_os_family == 'Debian'
 
 - name: check for nomad installation
   stat: path={{ nomad_bin }}
