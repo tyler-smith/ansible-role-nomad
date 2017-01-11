@@ -31,6 +31,24 @@
   notify:
     - restart nomad
 
+- name: check if systemd is running
+  stat: path=/run/systemd/system
+  register: systemd
+
+- name: install upstart service
+  template: src=nomad.j2.conf dest=/etc/init/nomad.conf
+  when: not systemd.stat.exists
+  notify:
+    - reload unit file
+    - restart nomad
+
+- name: install systemd unit
+  template: src=nomad.j2.service dest=/usr/lib/systemd/system/nomad.service
+  when: systemd.stat.exists
+  notify:
+    - reload unit file
+    - restart nomad
+
 - name: ensure unit file is present
   template: src=nomad.j2.service dest=/usr/lib/systemd/system/nomad.service
   notify:
